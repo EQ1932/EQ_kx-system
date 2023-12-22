@@ -273,9 +273,44 @@ void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
 /* Task 5 */
 game_state_t* load_board(FILE* fp) {
   // TODO: Implement this function.
-  return NULL;
+  if(fp==NULL) return NULL;
+  game_state_t* state=malloc(sizeof(game_state_t));
+  state->num_rows=0;
+  state->board=NULL;
+  state->num_snakes=0;
+  state->snakes=NULL;
+  unsigned int row = 0;
+  unsigned int col = 0;
+  char s;
+  bool flag = false;
+  while(fscanf(fp,"%c",&s)!=EOF){
+    
+    if(flag){
+      state->board = realloc(state->board,(row + 1)*(sizeof(char*)));
+      state->board[row] = malloc(sizeof(char));
+    }
+    if(state->board == NULL){
+      state->board = malloc(sizeof(char*));
+      state->board[0] = malloc(sizeof(char));
+    }
+    state->board[row] = realloc(state->board[row],(col + 1)*(sizeof(char)));
+    if(s == '\n'){
+      state->board[row][col] = '\0';
+      row++;
+      col = 0;
+      flag = true;
+    }else{
+      state->board[row][col] = s;
+      col++;
+      flag = false;
+    }
+  }
+  state->num_rows = row;
+  print_board(state,stdout);
+  if(state == NULL) return NULL;
+  return state;
+  
 }
-
 /*
   Task 6.1
 
@@ -286,11 +321,45 @@ game_state_t* load_board(FILE* fp) {
 */
 static void find_head(game_state_t* state, unsigned int snum) {
   // TODO: Implement this function.
+  int row=state->snakes[snum].tail_row;
+  int col=state->snakes[snum].tail_col;
+  char c=get_board_at(state,row,col);
+  while(true){
+    if(c=='w') row--;
+    if(c=='a') col--;
+    if(c=='s') row++;
+    if(c=='d') col++;
+    c=get_board_at(state,row,col);
+    if(is_head(c)) break;
+    c=body_to_tail(c);
+  }
+  state->snakes[snum].head_row=row;
+  state->snakes[snum].head_col=col;
   return;
 }
 
 /* Task 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
   // TODO: Implement this function.
-  return NULL;
+  state->num_snakes=0;
+  for(int i=0;i<state->num_rows;i++){
+    for(int j=strlen(state->board[i])-1;j>=0;j--){
+      if(is_tail(state->board[i][j])) state->num_snakes++;
+    }
+  }
+  state->snakes=malloc(sizeof(snake_t)*state->num_snakes);
+  int snum=0;
+  for(int i=0;i<state->num_rows;i++){
+    int len=strlen(state->board[i]);
+    for(int j=0;j<len;j++){
+      if(is_tail(state->board[i][j])){
+        state->snakes[snum].tail_row=i;
+        state->snakes[snum].tail_col=j;
+        find_head(state,snum);
+        state->snakes[snum].live=true;
+        snum++;
+      }
+    }
+  }
+  return state;
 }
