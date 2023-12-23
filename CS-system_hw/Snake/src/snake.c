@@ -50,8 +50,8 @@ int main(int argc, char* argv[]) {
     if(in_file == NULL){
       return -1;
     }
+    state = load_board(in_file);
     fclose(in_file);
-    state = load_board(in_filename);
     initialize_snakes(state);
   } else if (io_stdin) {
     // TODO: Load the board from stdin

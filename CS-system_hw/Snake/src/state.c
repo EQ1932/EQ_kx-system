@@ -58,13 +58,12 @@ game_state_t* create_default_state() {
 /* Task 2 */
 void free_state(game_state_t* state) {
   // TODO: Implement this function.
-  if(state == NULL) return ;
-  if(state->snakes != NULL) free(state->snakes);
-  if(state->board != NULL){
-    for(int i = 0;i < 18;i++){
-      if((state->board)[i] != NULL){
-        free(state->board[i]);
-      }
+  if(state==NULL) return;
+  if(state->snakes!=NULL)free(state->snakes);
+  if(state->board==NULL)
+  {
+    for (int i = 0; i < 18; i++) {
+      if(state->board[i]!=NULL)free(state->board[i]);
     }
     free(state->board);
   }
@@ -284,7 +283,6 @@ game_state_t* load_board(FILE* fp) {
   char s;
   bool flag = false;
   while(fscanf(fp,"%c",&s)!=EOF){
-    
     if(flag){
       state->board = realloc(state->board,(row + 1)*(sizeof(char*)));
       state->board[row] = malloc(sizeof(char));
@@ -306,7 +304,6 @@ game_state_t* load_board(FILE* fp) {
     }
   }
   state->num_rows = row;
-  print_board(state,stdout);
   if(state == NULL) return NULL;
   return state;
   
